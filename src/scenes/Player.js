@@ -1,9 +1,9 @@
-
 class Player extends Phaser.Scene {
     distanceText;
 
     constructor() {
         super({key: 'Player', active: true});
+        this.MatterObject = Phaser.Physics.Matter.Matter;
     }
 
     preload() {
@@ -12,9 +12,20 @@ class Player extends Phaser.Scene {
     }
 
     create() {
-        this.source = this.physics.add.sprite(100, 200, "player", "tile001");
+        // Player collision zone and sensor
+        let playerCollider = this.MatterObject.Bodies.circle(0, 0, 16, {isSensor: false, label: 'playerCollider'});
+        let playerSensor = this.MatterObject.Bodies.circle(0, 0, 28, {isSensor: true, label: 'playerSensor'});
 
-        this.debug = this.add.graphics();
+        const compoundBody = this.MatterObject.Body.create({
+            parts: [playerCollider, playerSensor],
+            frictionAir: 0.35
+        });
+
+        this.player = this.matter.add.sprite(100, 200, "player", "tile001");
+        this.player.setExistingBody(compoundBody);
+        this.player.setPosition(100, 300);
+
+        //this.debug = this.add.graphics();
         this.createAnimations();
 
         // Player key register
@@ -29,7 +40,7 @@ class Player extends Phaser.Scene {
         //    this.target.x = pointer.x;
         //    this.target.y = pointer.y;
         //    
-        //    this.physics.moveToObject(this.source, this.target, 250);
+        //    this.physics.moveToObject(this.player, this.target, 250);
         //}, this);
 
         this.distanceText = this.add.text(10, 10, 'Click to set this.target', { fill: '#00ff00' });
@@ -39,16 +50,16 @@ class Player extends Phaser.Scene {
 
         this.manageWalking();
 
-        //var distance = Phaser.Math.Distance.Between(this.source.x, this.source.y, this.target.x, this.target.y);
+        //var distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.target.x, this.target.y);
 
-        //if (this.source.body.speed > 0) {
+        //if (this.player.body.speed > 0) {
         //    this.distanceText.setText('Distância: ' + distance);
 
         //    if (distance < 4) {
-        //        this.source.body.reset(this.target.x, this.target.y);
+        //        this.player.body.reset(this.target.x, this.target.y);
         //    }
         //} else {
-        //    this.source.play('finn_running_fd');
+        //    this.player.play('finn_running_fd');
         //}
 
 
@@ -128,43 +139,43 @@ class Player extends Phaser.Scene {
     * Handle the walking action and animation for the player. Void function.
     */
     manageWalking() {
-        let speed = 100;
+        let speed = 1;
         let target = new Phaser.Math.Vector2();
 
         if (this.inputKeys.left.isDown && this.inputKeys.up.isDown) {
             target.y = -1;
             target.x = -1;
-            this.source.anims.play(this.finn_running_up_left, true);    
+            this.player.anims.play(this.finn_running_up_left, true);    
         } else if (this.inputKeys.left.isDown && this.inputKeys.down.isDown) {
             target.y = 1;
             target.x = -1;
-            this.source.anims.play(this.finn_running_down_left, true);
+            this.player.anims.play(this.finn_running_down_left, true);
         } else if (this.inputKeys.left.isDown) {
             target.x = -1;
-            this.source.anims.play(this.finn_running_left, true);
+            this.player.anims.play(this.finn_running_left, true);
         } else if (this.inputKeys.right.isDown && this.inputKeys.up.isDown) {
             target.y = -1;
             target.x = 1;
-            this.source.anims.play(this.finn_running_up_right, true);
+            this.player.anims.play(this.finn_running_up_right, true);
         } else if (this.inputKeys.right.isDown && this.inputKeys.down.isDown) {
             target.y = 1;
             target.x = 1;
-            this.source.anims.play(this.finn_running_down_right, true);
+            this.player.anims.play(this.finn_running_down_right, true);
         } else {
             if (this.inputKeys.up.isDown) {
                 target.y = -1;
-                this.source.anims.play(this.finn_running_up, true);
+                this.player.anims.play(this.finn_running_up, true);
             } else if (this.inputKeys.down.isDown) {
                 target.y = 1;
-                this.source.anims.play(this.finn_running_down, true);
+                this.player.anims.play(this.finn_running_down, true);
             }
             
             if (this.inputKeys.left.isDown) {
                 target.x = -1;
-                this.source.anims.play(this.finn_running_left, true);
+                this.player.anims.play(this.finn_running_left, true);
             } else if (this.inputKeys.right.isDown) {
                 target.x = 1;
-                this.source.anims.play(this.finn_running_right, true);
+                this.player.anims.play(this.finn_running_right, true);
             }
         }
 
@@ -174,13 +185,13 @@ class Player extends Phaser.Scene {
             this.inputKeys.left.isUp && 
             this.inputKeys.right.isUp
         ) {
-            this.source.anims.stop();
+            this.player.anims.stop();
         }
 
         target.normalize();
         target.scale(speed);
 
-        this.source.setVelocity(target.x, target.y);
+        this.player.setVelocity(target.x, target.y);
     }
 }
 
