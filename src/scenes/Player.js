@@ -22,10 +22,11 @@ class Player extends Phaser.Scene {
         });
 
         this.player = this.matter.add.sprite(100, 200, "player", "tile001");
+
+        let test = this.matter.add.sprite(300, 200, "player", "tile001");
         this.player.setExistingBody(compoundBody);
         this.player.setPosition(100, 300);
 
-        //this.debug = this.add.graphics();
         this.createAnimations();
 
         // Player key register
